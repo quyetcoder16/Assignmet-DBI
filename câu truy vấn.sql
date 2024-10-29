@@ -194,6 +194,35 @@ EXEC PRO_UpdateImportHistory
     @Employee_id = 2,
     @Supplier_id = 3;
 
+-- tạo procedure xóa import history
+drop PROCEDURE if exists Pro_DeleteImportHistory;
+CREATE PROCEDURE Pro_DeleteImportHistory
+    @Import_id INT
+AS
+BEGIN
+    BEGIN TRANSACTION;
+    BEGIN TRY
+
+		DELETE FROM Import_Detail
+        WHERE Imp_id = @Import_id;
+
+        DELETE FROM Import_History
+        WHERE Imp_id = @Import_id;
+
+        COMMIT TRANSACTION;
+    END TRY
+    BEGIN CATCH
+        ROLLBACK TRANSACTION;
+        THROW;
+    END CATCH
+END;
+
+EXEC Pro_DeleteImportHistory 
+    @Import_id = 11;
+
+select * from Product;
+select * from Import_Detail;
+select * from Import_History;
 
 
 -- tạo procedure thêm import_detail
@@ -259,3 +288,466 @@ EXEC PRO_DeleteImportDetail
 select * from Import_Detail;
 select * from Import_History;
 select * from Product;
+
+--  Update Import Detail 
+
+CREATE PROCEDURE PRO_UpdateImportDetail
+    @Import_id INT,
+    @Product_id INT,
+    @NewQuantity INT,
+    @NewPrice FLOAT
+AS
+BEGIN
+    BEGIN TRANSACTION;
+    BEGIN TRY
+        
+        -- Cập nhật bản ghi trong bảng Import_Detail
+        UPDATE Import_Detail
+        SET Quantity = @NewQuantity,
+            Price_Import = @NewPrice
+        WHERE Imp_id = @Import_id AND Product_id = @Product_id;
+
+        COMMIT TRANSACTION;
+    END TRY
+    BEGIN CATCH
+        ROLLBACK TRANSACTION;
+        THROW;
+    END CATCH
+END;
+
+EXEC PRO_UpdateImportDetail 
+    @Import_id = 11,
+    @Product_id = 51,
+    @NewQuantity = 150,
+    @NewPrice = 55000;
+
+select * from Import_Detail;
+select * from Import_History;
+select * from Product;
+
+-- thêm export history
+CREATE PROCEDURE PRO_AddExportHistory
+    @Date_export DATE,
+    @Employee_id INT,
+    @Customer_id INT
+AS
+BEGIN
+    BEGIN TRANSACTION;
+    BEGIN TRY
+        INSERT INTO Export_History (Date_export, Employee_id, Customer_id)
+        VALUES (@Date_export, @Employee_id, @Customer_id);
+        COMMIT TRANSACTION;
+    END TRY
+    BEGIN CATCH
+        ROLLBACK TRANSACTION;
+        THROW;
+    END CATCH
+END;
+
+select * from Product;
+select * from Export_History;
+select * from Export_Detail;
+
+EXEC PRO_AddExportHistory 
+    @Date_export = '2024-10-29',
+    @Employee_id = 11,
+    @Customer_id = 10;
+
+-- cập nhật export_history
+CREATE PROCEDURE PRO_UpdateExportHistory
+    @Export_id INT,
+    @Date_export DATE,
+    @Employee_id INT,
+    @Customer_id INT
+AS
+BEGIN
+    BEGIN TRANSACTION;
+    BEGIN TRY
+        UPDATE Export_History
+        SET Date_export = @Date_export,
+            Employee_id = @Employee_id,
+            Customer_id = @Customer_id
+        WHERE Exp_id = @Export_id;
+        COMMIT TRANSACTION;
+    END TRY
+    BEGIN CATCH
+        ROLLBACK TRANSACTION;
+        THROW;
+    END CATCH
+END;
+
+select * from Product;
+select * from Export_History;
+select * from Export_Detail;
+
+EXEC PRO_UpdateExportHistory 
+    @Export_id = 11,
+    @Date_export = '2024-10-29',
+    @Employee_id = 2,
+    @Customer_id = 3;
+
+-- xóa export history
+CREATE PROCEDURE PRO_DeleteExportHistory
+    @Export_id INT
+AS
+BEGIN
+    BEGIN TRANSACTION;
+    BEGIN TRY
+        DELETE FROM Export_Detail
+        WHERE Exp_id = @Export_id;
+
+        DELETE FROM Export_History
+        WHERE Exp_id = @Export_id;
+
+        COMMIT TRANSACTION;
+    END TRY
+    BEGIN CATCH
+        ROLLBACK TRANSACTION;
+        THROW;
+    END CATCH
+END;
+
+select * from Product;
+select * from Export_History;
+select * from Export_Detail;
+
+EXEC PRO_DeleteExportHistory 
+    @Export_id = 11;
+
+
+-- thêm export detail
+CREATE PROCEDURE PRO_AddExportDetail
+    @Export_id INT,
+    @Product_id INT,
+    @Quantity INT,
+    @Price FLOAT
+AS
+BEGIN
+    BEGIN TRANSACTION;
+    BEGIN TRY
+        INSERT INTO Export_Detail (Exp_id, Product_id, Quantity, Price_Export)
+        VALUES (@Export_id, @Product_id, @Quantity, @Price);
+        COMMIT TRANSACTION;
+    END TRY
+    BEGIN CATCH
+        ROLLBACK TRANSACTION;
+        THROW;
+    END CATCH
+END;
+
+select * from Product;
+select * from Export_History;
+select * from Export_Detail;
+
+EXEC PRO_AddExportDetail 
+    @Export_id = 11,
+    @Product_id = 51,
+    @Quantity = 20,
+    @Price = 50000;
+
+
+-- cập nhật export detail
+CREATE PROCEDURE PRO_UpdateExportDetail
+    @Export_id INT,
+    @Product_id INT,
+    @NewQuantity INT,
+    @NewPrice FLOAT
+AS
+BEGIN
+    BEGIN TRANSACTION;
+    BEGIN TRY
+        UPDATE Export_Detail
+        SET Quantity = @NewQuantity,
+            Price_Export = @NewPrice
+        WHERE Exp_id = @Export_id AND Product_id = @Product_id;
+        COMMIT TRANSACTION;
+    END TRY
+    BEGIN CATCH
+        ROLLBACK TRANSACTION;
+        THROW;
+    END CATCH
+END;
+
+select * from Product;
+select * from Export_History;
+select * from Export_Detail;
+
+EXEC PRO_UpdateExportDetail 
+    @Export_id = 11,
+    @Product_id = 51,
+    @NewQuantity = 15,
+    @NewPrice = 55000;
+
+
+-- xóa export detail
+CREATE PROCEDURE PRO_DeleteExportDetail
+    @Export_id INT,
+    @Product_id INT
+AS
+BEGIN
+    BEGIN TRANSACTION;
+    BEGIN TRY
+        DELETE FROM Export_Detail
+        WHERE Exp_id = @Export_id AND Product_id = @Product_id;
+        COMMIT TRANSACTION;
+    END TRY
+    BEGIN CATCH
+        ROLLBACK TRANSACTION;
+        THROW;
+    END CATCH
+END;
+
+select * from Product;
+select * from Export_History;
+select * from Export_Detail;
+
+EXEC PRO_DeleteExportDetail 
+    @Export_id = 11,
+    @Product_id = 51;
+
+-- xóa supplier 
+CREATE PROCEDURE PRO_DeleteSupplier
+    @Supplier_id INT
+AS
+BEGIN
+    BEGIN TRANSACTION;
+    BEGIN TRY
+
+        DELETE FROM Supplier
+        WHERE Supplier_id = @Supplier_id;
+
+        COMMIT TRANSACTION;
+    END TRY
+    BEGIN CATCH
+        ROLLBACK TRANSACTION;
+        THROW;
+    END CATCH
+END;
+
+EXEC PRO_DeleteSupplier 
+    @Supplier_id = 11;
+
+select * from Supplier;
+
+-- xóa Employee
+CREATE PROCEDURE PRO_DeleteEmployee
+    @Employee_id INT
+AS
+BEGIN
+    BEGIN TRANSACTION;
+    BEGIN TRY
+        DELETE FROM Employee
+        WHERE Employee_id = @Employee_id;
+        COMMIT TRANSACTION;
+    END TRY
+    BEGIN CATCH
+        ROLLBACK TRANSACTION;
+        THROW;
+    END CATCH
+END;
+
+EXEC PRO_DeleteEmployee 
+    @Employee_id = 20;
+
+select * from Employee;
+
+-- xóa department 
+
+CREATE PROCEDURE PRO_DeleteDepartment
+    @Department_id INT
+AS
+BEGIN
+    BEGIN TRANSACTION;
+    BEGIN TRY
+        -- Xóa phòng ban từ bảng Department
+        DELETE FROM Department
+        WHERE Dep_id = @Department_id;
+
+        COMMIT TRANSACTION;
+    END TRY
+    BEGIN CATCH
+        ROLLBACK TRANSACTION;
+        THROW;
+    END CATCH
+END;
+
+INSERT INTO Department (Dep_Name, Phone, Address, Manager_id) VALUES 
+(N'Phòng n', '0132456987', N'Tầng n', NULL);
+
+EXEC PRO_DeleteDepartment 
+    @Department_id = 7;
+
+select * from Department;
+
+-- xóa customer
+
+CREATE PROCEDURE PRO_DeleteCustomer
+    @Customer_id INT
+AS
+BEGIN
+    BEGIN TRANSACTION;
+    BEGIN TRY
+    
+        DELETE FROM Customer
+        WHERE Customer_id = @Customer_id;
+
+        COMMIT TRANSACTION;
+    END TRY
+    BEGIN CATCH
+        ROLLBACK TRANSACTION;
+        THROW;
+    END CATCH
+END;
+
+EXEC PRO_DeleteCustomer 
+    @Customer_id = 20;
+
+select * from Customer;
+
+-- xóa catagories
+CREATE PROCEDURE PRO_DeleteCategories
+    @Category_id INT
+AS
+BEGIN
+    BEGIN TRANSACTION;
+    BEGIN TRY
+        
+
+        -- Xóa danh mục từ bảng Category
+        DELETE FROM Categories
+        WHERE Categorie_id = @Category_id;
+
+        COMMIT TRANSACTION;
+    END TRY
+    BEGIN CATCH
+        ROLLBACK TRANSACTION;
+        THROW;
+    END CATCH
+END;
+
+EXEC PRO_DeleteCategories
+    @Category_id = 6;
+
+
+INSERT INTO Categories (Categorie_Name, Description) VALUES 
+(N'Thiết bị gia dụng', N'Sản phẩm điện tử gia dụng như tivi, tủ lạnh, máy giặt, điều hòa, bếp ga, quạt điện, bàn là, bếp từ, nồi cơm điện, máy xay sinh tố');
+
+
+select * from Categories;
+
+-- lấy ra danh sách các import từ ngày a ngày b 
+
+CREATE PROCEDURE PRO_GetImportsByDateRange
+    @StartDate DATE,
+    @EndDate DATE
+AS
+BEGIN
+    BEGIN TRANSACTION;
+    BEGIN TRY
+        SELECT *
+        FROM Import_History
+        WHERE Date_import BETWEEN @StartDate AND @EndDate;
+        
+        COMMIT TRANSACTION;
+    END TRY
+    BEGIN CATCH
+        ROLLBACK TRANSACTION;
+        THROW;
+    END CATCH
+END;
+
+select * from Import_History;
+
+EXEC PRO_GetImportsByDateRange 
+    @StartDate = '2023-01-01',
+    @EndDate = '2023-07-31';
+
+-- thống kê số lượng sản phẩm nhập và tổng số tiền phải trả theo id nhập 
+CREATE PROCEDURE PRO_StatisticsImportDetails
+    @Import_id INT
+AS
+BEGIN
+    BEGIN TRANSACTION;
+    BEGIN TRY
+        SELECT 
+            ih.Imp_id,
+            ih.Date_import,
+            e.Employee_name,
+            s.Supplier_name,
+            SUM(id.Quantity) AS TotalQuantity,
+            SUM(id.Quantity * id.Price_Import) AS TotalAmount
+        FROM Import_History ih
+        JOIN Employee e ON ih.Employee_id = e.Employee_id
+        JOIN Supplier s ON ih.Supplier_id = s.Supplier_id
+        JOIN Import_Detail id ON ih.Imp_id = id.Imp_id
+        WHERE ih.Imp_id = @Import_id
+        GROUP BY ih.Imp_id, ih.Date_import, e.Employee_name, s.Supplier_name;
+
+        COMMIT TRANSACTION;
+    END TRY
+    BEGIN CATCH
+        ROLLBACK TRANSACTION;
+        THROW;
+    END CATCH
+END;
+
+EXEC PRO_StatisticsImportDetails 
+    @Import_id = 10;
+
+-- export từ ngày A đến ngày B
+CREATE PROCEDURE PRO_GetExportsByDateRange
+    @StartDate DATE,
+    @EndDate DATE
+AS
+BEGIN
+    BEGIN TRANSACTION;
+    BEGIN TRY
+        SELECT *
+        FROM Export_History
+        WHERE Date_export BETWEEN @StartDate AND @EndDate;
+        
+        COMMIT TRANSACTION;
+    END TRY
+    BEGIN CATCH
+        ROLLBACK TRANSACTION;
+        THROW;
+    END CATCH
+END;
+
+EXEC PRO_GetExportsByDateRange 
+    @StartDate = '2023-01-01',
+    @EndDate = '2023-07-31';
+
+
+-- thống kê chi tiết export
+
+CREATE PROCEDURE PRO_StatisticsExportDetails
+    @Export_id INT
+AS
+BEGIN
+    BEGIN TRANSACTION;
+    BEGIN TRY
+        SELECT 
+            eh.Exp_id,
+            eh.Date_export,
+            e.Employee_name,
+            c.Customer_name,
+            SUM(ed.Quantity) AS TotalQuantity,
+            SUM(ed.Quantity * ed.Price_Export) AS TotalAmount
+        FROM Export_History eh
+        JOIN Employee e ON eh.Employee_id = e.Employee_id
+        JOIN Customer c ON eh.Customer_id = c.Customer_id
+        JOIN Export_Detail ed ON eh.Exp_id = ed.Exp_id
+        WHERE eh.Exp_id = @Export_id
+        GROUP BY eh.Exp_id, eh.Date_export, e.Employee_name, c.Customer_name;
+
+        COMMIT TRANSACTION;
+    END TRY
+    BEGIN CATCH
+        ROLLBACK TRANSACTION;
+        THROW;
+    END CATCH
+END;
+
+EXEC PRO_StatisticsExportDetails 
+    @Export_id = 10;

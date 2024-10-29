@@ -63,3 +63,68 @@ BEGIN
         THROW;
     END CATCH
 END;
+
+-- tạo trigger khi thêm export detail 
+DROP TRIGGER IF EXISTS trg_AddExportDetail;
+CREATE TRIGGER trg_AddExportDetail
+ON Export_Detail
+AFTER INSERT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    UPDATE Product
+    SET Quantity = p.Quantity - i.Quantity
+    FROM Product p
+    INNER JOIN inserted i ON p.Product_id = i.Product_id;
+END;
+-- trigger khi xóa export detail
+DROP TRIGGER IF EXISTS trg_SubtractExportDetail;
+CREATE TRIGGER trg_SubtractExportDetail
+ON Export_Detail
+AFTER DELETE
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    BEGIN TRANSACTION;
+    BEGIN TRY
+        UPDATE Product
+        SET Quantity = p.Quantity + d.Quantity
+        FROM Product p
+        INNER JOIN deleted d ON p.Product_id = d.Product_id;
+
+        COMMIT TRANSACTION;
+    END TRY
+    BEGIN CATCH
+        ROLLBACK TRANSACTION;
+        THROW;
+    END CATCH
+END;
+
+-- trigger khi cập nhật export detail
+
+DROP TRIGGER IF EXISTS trg_UpdateExportDetail;
+CREATE TRIGGER trg_UpdateExportDetail
+ON Export_Detail
+AFTER UPDATE
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    BEGIN TRANSACTION;
+    BEGIN TRY
+        -- Cập nhật số lượng sản phẩm
+        UPDATE Product
+        SET Quantity = p.Quantity - i.Quantity + d.Quantity
+        FROM Product p
+        INNER JOIN inserted i ON p.Product_id = i.Product_id
+        INNER JOIN deleted d ON p.Product_id = d.Product_id;
+
+        COMMIT TRANSACTION;
+    END TRY
+    BEGIN CATCH
+        ROLLBACK TRANSACTION;
+        THROW;
+    END CATCH
+END;
